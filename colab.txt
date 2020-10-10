@@ -1,0 +1,72 @@
+https://medium.com/@moshe.livne/training-tensorflow-for-free-pet-object-detection-api-sample-trained-on-google-collab-c2e65f4a9949
+
+----------------------------------------------------------------------------------------------------------------
+Frequently used commands
+--change runtime type
+
+--unzip
+!unzip test.zip -d test
+
+cd /content/models/research/object_detection/
+cd /content/models/research/object_detection/training
+/content/models/research/object_detection/ssd_mobilenet_v1_coco_11_06_2017
+
+rm -r models
+
+mv dataset /content/cnn/
+---------------------------------------------------------------------------------------------------------------------
+
+Clone the Tensorflow models repository
+!git clone https://github.com/tensorflow/models.git
+!git clone https://github.com/shadabgada/models.git
+
+Clone the COCO repository and install the COCO object detection api (this is actually needed only for eval but anyways, we follow the instructions)
+!git clone https://github.com/cocodataset/cocoapi.git
+!cd cocoapi/PythonAPI; make; cp -r pycocotools /content/models/research/
+
+Set the environment for all future operations. You need to run this part if you restart your runtime.
+cd /content/models/research
+!mkdir train eval
+%set_env PYTHONPATH=/content/models/research:/content/models/research/slim
+
+Compile the model definitions
+!protoc object_detection/protos/*.proto --python_out=.
+
+Test that everything we need is installed
+!python object_detection/builders/model_builder_test.py
+
+
+Get the pre trained model for transfer learning
+!wget http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_11_06_2017.tar.gz
+!tar -xvf ssd_mobilenet_v1_coco_11_06_2017.tar.gz
+mv ssd_mobilenet_v1_coco_11_06_2017 /content/models/research/object_detection/
+
+
+Get and edit the config file for the model
+
+cd /content/models/research/object_detection/
+
+train model
+!python3 legacy/train.py --logtostderr --train_dir=training/ --pipeline_config_path=training/ssd_mobilenet_v1_coco.config
+
+
+cd /content/models/research/object_detection/training
+export inference_graph
+!python3 export_inference_graph.py --input_type image_tensor --pipeline_config_path training/ssd_mobilenet_v1_coco.config --trained_checkpoint_prefix training/model.ckpt-3255 --output_directory inference_graph
+
+
+---------------------------------------------------------------------------------------------------------------
+
+Upload
+from google.colab import files
+files.upload()
+
+Download
+files.download('filename')
+
+List directory
+!ls
+
+move files
+mv /content/models/research/test.record /content/models/research/object_detection/training
+
